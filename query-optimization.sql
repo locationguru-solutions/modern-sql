@@ -55,11 +55,10 @@ INSERT INTO devices(serial_number
 SELECT ('S-' || split_part(uuid_generate_v4()::TEXT, '-', 5))
 FROM generate_series(1, 1000);
 
-INSERT INTO employee_device_mapping(customer_id, employee_id, device_id
-)
-(SELECT e.customer_id, e.id, d.id
- FROM employees e
-	  JOIN devices d ON d.customer_id = e.customer_id);
+INSERT INTO employee_device_mapping(customer_id, employee_id, device_id)
+	(SELECT e.customer_id, e.id, d.id
+	 FROM employees e
+		  JOIN devices d ON d.customer_id = e.customer_id);
 
 SELECT *
 FROM employee_device_mapping
@@ -73,8 +72,21 @@ LIMIT 100
 ;
 
 EXPLAIN ANALYZE
-	SELECT *
+SELECT e.*
+FROM employees e
+	 JOIN employee_device_mapping edm ON e.customer_id = 1 AND edm.customer_id = 1 AND e.id = edm.employee_id
+	 JOIN devices d ON d.customer_id = 1 AND edm.device_id = d.id
+WHERE e.customer_id = 1;
+
+EXPLAIN ANALYZE
+	SELECT e.*
 	FROM employees e
 		 JOIN employee_device_mapping edm ON e.id = edm.employee_id
 		 JOIN devices d ON edm.device_id = d.id
 	WHERE e.customer_id = 1;
+
+
+SELECT *
+FROM users
+WHERE creation_timestamp >= '2019-08-08'
+      and creation_timestamp < '2019-08-09';
